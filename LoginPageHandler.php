@@ -18,7 +18,7 @@ $pass = $_POST["password"];
 
 $check = true;
   $sql = "SELECT * FROM users";
-  $result = $conn->query($sql) or die($conn->error); 
+  $result = $conn->query($sql) or die($conn->error);
   while ($row = $result->fetch_assoc())
   {
     if($row['username']===$user && $row['password']===$pass)
@@ -28,13 +28,19 @@ $check = true;
       $_SESSION['user'] = $user;
       $_SESSION['id'] = $row['id'];
       $check = false;
-      echo "<div> You are logged on </div>";
+
 }
 
 }
+
 if($check === true)
 {
   $_SESSION['Wrong']= "wrong thingy";
+  header("Location: http://localhost:8080/WebProject/LoginPage.php");
+
+}
+else{
+  header("Location: http://localhost:8080/WebProject/ProfilePage.php");
 }
 
  ?>
