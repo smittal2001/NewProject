@@ -150,7 +150,7 @@
   <a href="#clients">Clients</a>
   <a href="#contact">Post</a>
   <div class = "container">
-    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#exampleModal">
+    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#postModal">
       Post
     </button>
   </div>
@@ -177,17 +177,63 @@
       <div class = "bio">  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
         Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
       </div>
+
+
+
+  <!-- post preiview -->
+
+  <?php
+    $servername = 'localhost';
+    $username = 'root';
+    $password = 'ankith_sloth';
+    $dbname = 'Project1';
+
+    $conn = new mysqli($servername,$username,$password,$dbname);
+
+    if($conn -> connect_error)
+    {
+      die("connection failed; ". $conn-> connect_error);
+    }
+
+    $query = "SELECT * FROM userposts";
+    $result = $conn->query($query);
+
+
+    //<h5 class='card-title'>Card title</h5>
+
+    // start a table tag in the HTML
+
+    while($row = $result->fetch_assoc()){   //Creates a loop to loop through results
+      echo "<div class='card' style='width: 18rem;''>
+      <div class='card-header'>
+        <h5 class='card-title'>" . $row['animeTopic'] . "</h5>
+      </div>
+      <div class='card-body'>";
+      //echo "";
+      echo "<h5 class='card-subtitle mb-2 text-muted'>@". $row['username']. "</h5>";
+      echo "<p class='card-text'>". $row['post']. "</p>";
+      echo "<a class='card-link'>Comments:100</a>";
+      echo "<a class='card-link'>Likes:200</a>";
+      echo //"  <a href='#' class='card-link'>Another link</a>
+      "</div>
+        </div>";
+    }
+
+
+    $conn->close(); //Make sure to close out the database connection
+    ?>
+
+      </div>
+
+
     </div>
-
-
-  </div>
   </div>
 
   <!-- Button trigger modal -->
 
 
   <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -205,15 +251,15 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-primary">Save changes</button>
+          <button type="submit" class="btn btn-primary">Post</button>
         </div>
       </form>
       </div>
     </div>
-  </div
+  </div>
 
   <?php
-  session_start();
+  //session_start();
     if(isset($_SESSION['Wrong']))
     {
       echo "<div> You entered an incorrect username or password </div>";
