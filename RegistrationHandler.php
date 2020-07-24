@@ -14,10 +14,14 @@ if($conn -> connect_error)
 session_start();
 $user= $_POST["username"];
 $pass = $_POST["password"];
+
+
+
 //$userid =  mt_rand(1, 500);
 header("Location: http://localhost:8080/WebProject/RegistrationPage.php");
 $check = true;
 $legal ="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_";
+
 if(strlen($user)>=3&&strlen($user)<=20)
 {
   for($i = 0; $i<strlen($user); $i++)
@@ -26,7 +30,7 @@ if(strlen($user)>=3&&strlen($user)<=20)
       if(strpos($legal,substr($user,$i,1))===false)
       {
         $_SESSION['Error'] = "Invalid username";
-        header("Location: http://localhost:8080/WebProject/RegistrationPage.php");
+        header("Location: http://localhost:8080/WebProject/LandingPage.php");
         $check = false;
 
         break;
@@ -67,7 +71,7 @@ if($check===true)
   $stmt = $conn->prepare($sql);
   $stmt->bind_param("ss",$user,$pass);
   $stmt->execute();
-  header("Location: http://localhost:8080/WebProject/LoginPage.php");
+  header("Location: http://localhost:8080/WebProject/ProfilePage.php");
 }
 
 }

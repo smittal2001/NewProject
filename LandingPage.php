@@ -90,6 +90,7 @@
 
   <div class= "landing">
     <div class = "div1">Web Project</div>
+
     <button type="button" class="Loginbutton" data-toggle="modal" data-target="#LoginPageModal" > Login </button>
     <button type="button" class="RegisterButton" data-toggle="modal" data-target="#RegisterPageModal" > Sign up </button>
 
@@ -143,7 +144,7 @@
 						</div>
 						<div class="form-group">
 							<label for="exampleInputPassword1">Password</label>
-							<input type="text" class="form-control" name = "password" id="exampleInputPassword1" placeholder="Enter password...">
+							<input type="password" class="form-control" name = "password" id="exampleInputPassword1" placeholder="Enter password...">
 						</div>
 						<div class="form-group">
 							<label for="exampleInputPassword1">Re-enter password</label>
