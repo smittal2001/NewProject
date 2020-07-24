@@ -1,7 +1,45 @@
 <!doctype html>
 <html lang="en">
   <head>
+
     <style>
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      padding-top: 100px; /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content */
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaaaaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
     .upper{
       left: 300px;
       right: 300px;
@@ -54,13 +92,18 @@
     font-size: 14px;
   }
   .Profile{
+
+
+    /* width: 100vw; /* viewport width */
+    height: 100vh; /* viewport height */
     left: 300px;
     right: 300px;
     top: 250px;
     border: 1px solid green;
     position: fixed;
     z-index: 1;
-    height: 600px;
+    overflow-y:scroll;
+    overflow-x:hidden;
     color: #2196F3;
     background: #eee;
   }
@@ -194,8 +237,9 @@
     {
       die("connection failed; ". $conn-> connect_error);
     }
+    $user = $_SESSION['user'];
 
-    $query = "SELECT * FROM userposts";
+    $query = "SELECT userposts.username, animeTopic, post, userposts.likes, userposts.postid FROM userposts INNER JOIN users ON users.username = '$user'";
     $result = $conn->query($query);
 
 
@@ -204,20 +248,89 @@
     // start a table tag in the HTML
 
     while($row = $result->fetch_assoc()){   //Creates a loop to loop through results
-      echo "<div class='card' style='width: 18rem;''>
-      <div class='card-header'>
+      if($row['username'] != $user){
+        continue;
+      }
+      $postID = $row['postid'];
+      echo "<div class='card'>
+      <div class='card-header' id = 'post' data-post-id = '$postID' onclick = 'openModal(this)'>
         <h5 class='card-title'>" . $row['animeTopic'] . "</h5>
       </div>
-      <div class='card-body'>";
+      <div class='card-body' data-post-id = '$postID' onclick = 'openModal(this)'>";
       //echo "";
       echo "<h5 class='card-subtitle mb-2 text-muted'>@". $row['username']. "</h5>";
       echo "<p class='card-text'>". $row['post']. "</p>";
+    //  echo $postID;
       echo "<a class='card-link'>Comments:100</a>";
-      echo "<a class='card-link'>Likes:200</a>";
+      echo "<a class='card-link'>Likes:".$row['likes']."</a>";
       echo //"  <a href='#' class='card-link'>Another link</a>
       "</div>
         </div>";
-    }
+      }
+
+      $animeTopic = 'naruto';
+      $post = 'Believe it!';
+      $username = 'NarutoLover123';
+      echo "<div id='myModal' class='modal'>";
+            echo   "<!-- Modal content -->
+                <div class='modal-content'>
+                  <span class='close'>&times;</span>
+                </div>
+
+              <div class='modal-header'>
+                <h5 class='modal-title' id='exampleModalLabel'>Post</h5>
+
+              </div>";
+        if (isset($_POST['postComments']))
+        {
+          $postID = $conn->real_escape_string($_POST['postID']);
+          $sql = "SELECT userposts.username, animeTopic, post, userposts.likes, userposts.postid FROM userposts INNER JOIN users ON users.username = '$user'";
+          $result = $conn->query($query);
+          if ($result->num_rows === 0)
+              exit('no posts');
+          else
+            {
+              while($row = $result->fetch_assoc()){   //Creates a loop to loop through results
+                if($row['postid'] === $postID){
+
+
+                  $animeTopic = $row['animeTopic'];
+                  $post = $row['post'];
+                  $username = $row['username'];
+                  $likes = $row['likes'];
+                  //echo $row['animeTopic'];
+                  // echo $postID;
+                  echo "
+                    <div class='modal-body'>
+                        <div class='card' style='width: 18rem;'>
+                        <div class='card-header' id = 'post' data-post-id = '$postID' onclick = 'openModal(this)'>
+                          <h5 class='card-title'>". $animeTopic ."</h5>
+                        </div>
+                        <div class='card-body' data-post-id = '$postID' onclick = 'openModal(this)'>
+
+                         <h5 class='card-subtitle mb-2 text-muted'>@ ".$username."</h5>
+                         <p class='card-text'> ".$post." </p>
+
+                      <a class='card-link'>Comments:100</a>
+                        <a class='card-link'>Likes:".$likes."</a>
+                        </div>
+                          </div>
+                    <div class='modal-footer'>
+                      <button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>
+                      <button type='submit' class='btn btn-primary'>Post</button>
+                    </div>
+                  </form>";
+                }
+            }
+                  
+          }
+        }
+        echo "</div>";
+
+
+
+
+
 
 
     $conn->close(); //Make sure to close out the database connection
@@ -237,7 +350,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Post</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -245,7 +358,11 @@
         <div class="modal-body">
           <form method="post" action = "Post.php">
             <div class="form-group">
-              <label for="exampleInputPassword1">Post</label>
+              <label for="exampleInputPassword1">Anime Name</label>
+              <input type="text" class="form-control" name = "anime" id="exampleInputPassword1" placeholder="Anime">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputPassword1">Discussion</label>
               <input type="text" class="form-control" name = "userpost" id="exampleInputPassword1" placeholder="Start Typing...">
             </div>
         </div>
@@ -273,14 +390,60 @@
 
 
 
-
-
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="http://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script type = "text/javascript">
+
+
+
+    // Get the button that opens the modal
+    //var btn = document.getElementById("myBtn");
+
+    // Get the <span> element that closes the modal
+    //var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks the button, open the modal
+    openModal = function(post) {
+      var postID = post.getAttribute("data-post-id");
+      $.ajax({
+          url: 'ProfilePage.php',
+          method: 'POST',
+          dataType: 'text',
+          data: {
+              postComments: 1,
+              postID: postID
+          }, success: function (response) {
+              console.log(postID);
+              console.log(response);
+
+
+          }
+      });
+      var modal = document.getElementById("myModal");
+      modal.style.display = "block";
+    }
+
+
+
+    // When the user clicks on <span> (x), close the modal
+    // span.onclick = function() {
+    //   modal.style.display = "none";
+    // }
+    //
+    // // When the user clicks anywhere outside of the modal, close it
+    // window.onclick = function(event) {
+    //   if (event.target == modal) {
+    //     modal.style.display = "none";
+    //   }
+    // }
+
+
+    </script>
+
   </body>
 </html>

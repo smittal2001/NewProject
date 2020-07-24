@@ -15,16 +15,19 @@ session_start();
 
 $post = $_POST['userpost'];
 $user = $_SESSION['user'];
-$anime = "Naruto";
+$anime = $_POST['anime'];
+$userid = $_SESSION['userID'];
 $likes = 0;
 
 if(!empty($_POST['userpost']))
 {
 
-  $sql = "INSERT INTO userposts (username,animeTopic,post,likes) VALUES ('".$user."','".$anime."','".$post."','".$likes."')";
+  $sql = "INSERT INTO userposts (username,animeTopic,post,likes,userid) VALUES ('".$user."','".$anime."','".$post."','".$likes."','".$userid."')";
   $stmt = $conn->prepare($sql);
-  $stmt->bind_param("sssi",$user,$aniem,$post,$likes);
+  $stmt->bind_param("sssis",$user,$anime,$post,$likes,$userid);
   $stmt->execute();
+
+
   header("Location: http://localhost:8080/WebProject/ProfilePage.php");
 
 }
