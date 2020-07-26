@@ -1,130 +1,8 @@
 <!doctype html>
 <html lang="en">
   <head>
-
+    <link rel="stylesheet" type="text/css" href="styles.css">
     <style>
-    .modal {
-      display: none; /* Hidden by default */
-      position: fixed; /* Stay in place */
-      z-index: 1; /* Sit on top */
-      padding-top: 100px; /* Location of the box */
-      left: 0;
-      top: 0;
-      width: 100%; /* Full width */
-      height: 100%; /* Full height */
-      overflow: auto; /* Enable scroll if needed */
-      background-color: rgb(0,0,0); /* Fallback color */
-      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    }
-
-    /* Modal Content */
-    .modal-content {
-      background-color: #fefefe;
-      margin: auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-    }
-
-    /* The Close Button */
-    .close {
-      color: #aaaaaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .close:hover,
-    .close:focus {
-      color: #000;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .upper{
-      left: 300px;
-      right: 300px;
-      padding: 30px 30px 30px 30px;
-      height: 250px;
-      position: fixed;
-      font-size: 25px;
-      color: #2196F3;
-      background: #eee;
-
-    }
-    .sidenav {
-    width: 250px;
-    height: 600px;
-    position: fixed;
-    z-index: 1;
-    top: 250px;
-    left: 170px;
-    background: #eee;
-    overflow-x: hidden;
-    padding: 8px 0;
-    border: 1px solid yellow;
-  }
-
-  .sidenav a {
-    padding: 6px 8px 6px 16px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #2196F3;
-    display: block;
-  }
-  .sidenav button {
-    text-align: center;
-    width: 100px;
-  }
-
-  .sidenav a:hover {
-    color: #064579;
-  }
-    .personalInfo {
-    width: 300px;
-    height: 100px;
-    border: 1px solid blue;
-  }
-  .bio {
-    width: 100%;
-    height: 60px;
-    background: #ffffff;
-    padding: 0px 50px 5px 50px;
-    font-size: 14px;
-  }
-  .Profile{
-
-
-    /* width: 100vw; /* viewport width */
-    height: 100vh; /* viewport height */
-    left: 300px;
-    right: 300px;
-    top: 250px;
-    border: 1px solid green;
-    position: fixed;
-    z-index: 1;
-    overflow-y:scroll;
-    overflow-x:hidden;
-    color: #2196F3;
-    background: #eee;
-  }
-  .personalInfo{
-    width: 800px;
-    height: 200px;
-    border: 1px solid blue;
-
-
-  }
-  #listItem
-  {
-    height: 80px;
-    background: #ffffff;
-    padding: 30px 50px 10px 50px;
-    font-size: 30px;
-
-
-  }
-
-
      </style>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -141,8 +19,15 @@
 
     <div class="upper">
   <h1 class="display-4"><?php
-  session_start();
-  echo "" . $_SESSION['user'] . "'s Profile";
+    session_start();
+    if (isset($_POST['openUser']))
+    {
+
+      $username = $conn->real_escape_string($_POST['username']);
+    }
+    else{
+      echo "" . $_SESSION['user'] . "'s Profile";
+    }
   ?></h1>
 
 <!-- navbar code -->
@@ -178,14 +63,66 @@
         <a class="nav-link" href="#">Something Else</a>
       </li>
     </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
+        <?php
+
+        error_reporting(0);
+        $servername = 'localhost';
+        $username = 'root';
+        $password = 'ankith_sloth';
+        $dbname = 'Project1';
+
+        $conn = new mysqli($servername,$username,$password,$dbname);
+
+        if($conn -> connect_error)
+        {
+          die("connection failed; ". $conn-> connect_error);
+        }
+        session_start();
+        $sql = "SELECT * FROM users";
+        $result = $conn->query($sql);
+        echo "<select id='selectddl'>";
+        echo "<option>----Search Users--</option>";
+        while($row = $result->fetch_assoc())
+        {
+            echo "<option id = 'search'>".$row['username']."</option>";
+        }
+        echo "</select>";
+        ?>
+    </nav>
   </div>
+  <?php
+      $servername = 'localhost';
+      $username = 'root';
+      $password = 'ankith_sloth';
+      $dbname = 'Project1';
+
+      $conn = new mysqli($servername,$username,$password,$dbname);
+
+      if($conn -> connect_error)
+      {
+        die("connection failed; ". $conn-> connect_error);
+      }
+      session_start();
+
+      if(isset($_POST['searchUsers']))
+      {
+        $search = $_POST["search"];
+        $sql = "SELECT * FROM users WHERE username LIKE '%$search%'";
+        $result = $conn->query($sql);
+        $table = '<div class="list-group">';
+        while($row = $result->fetch_assoc())
+        {
+          $username = $row['username'];
+          $table .= '<a data-user-name = '.$username.' onclick = "openUser(this)" class="list-group-item list-group-item-action">'.$row['username'].'</a>';
+        }
+        $table .= '</div>';
+        echo $table;
+      }
+   ?>
 </div>
 
-</nav>
+
+
 <!-- side navbar code -->
 <div class="sidenav">
   <a href="#about">About</a>
@@ -237,10 +174,18 @@
     {
       die("connection failed; ". $conn-> connect_error);
     }
-    $user = $_SESSION['user'];
+    if (isset($_POST['openUser']))
+    {
+
+      $user = $conn->real_escape_string($_POST['username']);
+    }
+    else{
+      $user = $_SESSION['user'];
+    }
 
     $query = "SELECT userposts.username, animeTopic, post, userposts.likes, userposts.postid FROM userposts INNER JOIN users ON users.username = '$user'";
-    $result = $conn->query($query);
+    $result = $conn->query($query) or die($conn->error);
+
 
 
     //<h5 class='card-title'>Card title</h5>
@@ -285,7 +230,7 @@
         {
           $postID = $conn->real_escape_string($_POST['postID']);
           $sql = "SELECT userposts.username, animeTopic, post, userposts.likes, userposts.postid FROM userposts INNER JOIN users ON users.username = '$user'";
-          $result = $conn->query($query);
+          $result = $conn->query($sql);
           if ($result->num_rows === 0)
               exit('no posts');
           else
@@ -314,18 +259,18 @@
                       <a class='card-link'>Comments:100</a>
                         <a class='card-link'>Likes:".$likes."</a>
                         </div>
-                          </div>
-                    <div class='modal-footer'>
-                      <button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>
-                      <button type='submit' class='btn btn-primary'>Post</button>
-                    </div>
-                  </form>";
+                          </div>";
                 }
             }
-                  
+
           }
         }
-        echo "</div>";
+        echo "<div class='modal-footer'>
+          <button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button>
+          <button type='submit' class='btn btn-primary'>Post</button>
+        </div>
+      </form>
+      </div>";
 
 
 
@@ -392,7 +337,7 @@
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    
+
 
     <script src="http://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
@@ -427,6 +372,23 @@
       var modal = document.getElementById("myModal");
       modal.style.display = "block";
     }
+    openUser = function(user) {
+      var username = user.getAttribute("data-user-name");
+      console.log(username);
+      $.ajax({
+          url: 'ProfilePage.php',
+          method: 'POST',
+          dataType: 'text',
+          data: {
+              openUser: 1,
+              username: username
+          }, success: function (response) {
+              console.log(response);
+              window.location = window.location;
+
+          }
+      });
+    }
 
 
 
@@ -443,6 +405,13 @@
     // }
 
 
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css">
+
+    <script type="text/javascript">
+      $("#selectddl").chosen();
     </script>
 
   </body>
